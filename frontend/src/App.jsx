@@ -4,6 +4,7 @@ import ScamChecker from "./pages/ScamChecker";
 import CurrencyChecker from "./pages/CurrencyChecker";
 import FraudGraph from "./pages/FraudGraph";
 import GeoIntel from "./pages/GeoIntel";
+import CitizenAssistant from "./pages/CitizenAssistant";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Link to="/currency">Currency Checker</Link>
           <Link to="/graph">Fraud Graph</Link>
           <Link to="/geo">Geo Intel</Link>
+          <Link to="/assistant">Citizen Assistant</Link>
         </nav>
         <div className="p-6">
           <Routes>
@@ -23,6 +25,7 @@ function App() {
             <Route path="/currency" element={<CurrencyChecker />} />
             <Route path="/graph" element={<FraudGraph />} />
             <Route path="/geo" element={<GeoIntel />} />
+            <Route path="/assistant" element={<CitizenAssistant />} />
           </Routes>
         </div>
       </div>

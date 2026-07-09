@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, engine
-from .routers import scam, currency, graph, geo
+from .routers import scam, currency, graph, geo, chat
 
 app = FastAPI(title="Digital Public Safety AI")
 
@@ -19,6 +19,7 @@ app.include_router(scam.router)
 app.include_router(currency.router)
 app.include_router(graph.router)
 app.include_router(geo.router)
+app.include_router(chat.router)
 
 @app.get("/")
 def root():
