@@ -25,11 +25,12 @@ India registered **1.14 million cybercrime complaints in 2023**, and "digital ar
 
 ## 🏗️ Architecture
 
+```
 ┌─────────────────────────────────────────────────────────┐
 │                     React Frontend (Vite)                │
 │  Dashboard | Scam Checker | Currency Scan | Graph | Map   │
 └───────────────────────────┬────────────────────────────┘
-│ REST (axios)
+                             │ REST (axios)
 ┌───────────────────────────▼────────────────────────────┐
 │                    FastAPI Backend (Uvicorn)              │
 │  /scam  /currency  /graph  /geo  /chat   routers          │
@@ -38,13 +39,14 @@ India registered **1.14 million cybercrime complaints in 2023**, and "digital ar
 │ (sklearn)   │ (OpenCV)  │ (fraud    │ (heatmap/ │ (Groq)  │
 │             │           │  clusters)│ hotspot)  │         │
 └─────────────┴───────────┴───────────┴───────────┴────────┘
-│
-┌────────▼────────┐
-│  SQLite (app.db)  │
-│ scams, currency,  │
-│ transactions,     │
-│ incidents         │
-└───────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  SQLite (app.db)  │
+                    │ scams, currency,  │
+                    │ transactions,     │
+                    │ incidents         │
+                    └───────────────────┘
+```
 
 ## 🧰 Tech Stack
 
@@ -61,6 +63,7 @@ India registered **1.14 million cybercrime complaints in 2023**, and "digital ar
 
 ## 📁 Project Structure
 
+```
 digital-safety-ai/
 ├── backend/
 │   ├── app/
@@ -86,18 +89,19 @@ digital-safety-ai/
 │   ├── requirements.txt
 │   └── .env
 └── frontend/
-├── src/
-│   ├── App.jsx
-│   ├── api.js
-│   └── pages/
-│       ├── Dashboard.jsx
-│       ├── ScamChecker.jsx
-│       ├── CurrencyChecker.jsx
-│       ├── FraudGraph.jsx
-│       ├── GeoIntel.jsx
-│       └── CitizenAssistant.jsx
-├── package.json
-└── tailwind.config.js
+    ├── src/
+    │   ├── App.jsx
+    │   ├── api.js
+    │   └── pages/
+    │       ├── Dashboard.jsx
+    │       ├── ScamChecker.jsx
+    │       ├── CurrencyChecker.jsx
+    │       ├── FraudGraph.jsx
+    │       ├── GeoIntel.jsx
+    │       └── CitizenAssistant.jsx
+    ├── package.json
+    └── tailwind.config.js
+```
 
 ## 🚀 Getting Started
 
