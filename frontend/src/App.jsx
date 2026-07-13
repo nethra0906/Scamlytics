@@ -69,7 +69,7 @@ function App() {
                   <Shield size={20} />
                 </div>
                 <span className="font-sans font-bold text-lg tracking-tight">
-                  DPS<span className="text-accent">.AI</span>
+                  Scam<span className="text-accent">lytics</span>
                 </span>
               </div>
 

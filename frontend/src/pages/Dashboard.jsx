@@ -86,7 +86,7 @@ export default function Dashboard() {
             SYSTEM ONLINE
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl mb-4 font-bold tracking-tighter">
-            Digital Public Safety <span className="text-accent">AI</span>
+            Scam<span className="text-accent">lytics</span>
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed">
             Unified intelligence platform for multi-agency threat detection. 
