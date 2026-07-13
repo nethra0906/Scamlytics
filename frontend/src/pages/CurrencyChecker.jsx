@@ -60,14 +60,14 @@ export default function CurrencyChecker() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
+      <header className="flex flex-col items-center text-center">
+        <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
           <ScanSearch className="text-accent" /> Counterfeit Intelligence
         </h1>
         <p className="text-text-secondary mt-1">Heuristic and CNN ensemble analysis of physical currency.</p>
       </header>
 
-      <div className="grid md:grid-cols-2 gap-6 items-start">
+      <div className={`grid gap-6 items-start ${result && !result.error ? 'md:grid-cols-2' : 'max-w-xl mx-auto w-full'}`}>
         {/* Upload Column */}
         <div className="bg-surface-card border border-surface-border rounded-xl p-6 shadow-sm space-y-4">
           <div 

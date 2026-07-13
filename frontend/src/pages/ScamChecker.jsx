@@ -87,15 +87,15 @@ export default function ScamChecker() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
+      <header className="flex flex-col items-center text-center">
+        <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
           <ShieldAlert className="text-accent" /> Threat & Scam Analyzer
         </h1>
         <p className="text-text-secondary mt-1">Multi-vector analysis for digital arrest and impersonation scams.</p>
       </header>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface-card p-1 rounded-lg border border-surface-border w-max">
+      <div className="flex gap-1 bg-surface-card p-1 rounded-lg border border-surface-border w-max mx-auto">
         <button 
           onClick={() => { setActiveTab("text"); setResult(null); }}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === "text" ? "bg-surface-elevated text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
@@ -110,7 +110,7 @@ export default function ScamChecker() {
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 items-start">
+      <div className={`grid gap-6 items-start ${result ? 'md:grid-cols-2' : 'max-w-xl mx-auto w-full'}`}>
         {/* Input Column */}
         <div className="bg-surface-card border border-surface-border rounded-xl p-6 shadow-sm">
           {activeTab === "text" ? (
