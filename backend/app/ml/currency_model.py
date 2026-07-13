@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import base64
+import tempfile
+import os
+from .currency_cnn import cnn_detector
 
 def _to_base64(img_array):
     _, buffer = cv2.imencode(".jpg", img_array)
@@ -11,6 +14,15 @@ def analyze_currency(image_bytes: bytes):
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None:
         return {"error": "Could not decode image"}
+
+    # Save to temp file for CNN
+    fd, temp_path = tempfile.mkstemp(suffix=".jpg")
+    try:
+        with os.fdopen(fd, 'wb') as f:
+            f.write(image_bytes)
+        cnn_result = cnn_detector.predict(temp_path)
+    finally:
+        os.remove(temp_path)
 
     img = cv2.resize(img, (800, 400))
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -42,7 +54,15 @@ def analyze_currency(image_bytes: bytes):
     texture_std = np.std(gray)
     scores["texture_richness"] = min(texture_std / 60.0, 1.0)
 
-    overall_confidence = float(np.mean(list(scores.values())))
+    # Combine heuristic scores
+    heuristic_confidence = float(np.mean(list(scores.values())))
+    
+    # Ensemble with CNN if it gave a confident reading, otherwise mostly ignore it
+    if cnn_result["status"] == "success" and cnn_result["cnn_confidence"] > 0.3:
+        overall_confidence = (heuristic_confidence * 0.6) + (cnn_result["cnn_score"] * 0.4)
+    else:
+        overall_confidence = heuristic_confidence
+
     verdict = "genuine" if overall_confidence >= 0.55 else "counterfeit"
 
     # Highlight suspicious regions: low-detail patches via sliding window Laplacian
@@ -62,6 +82,7 @@ def analyze_currency(image_bytes: bytes):
         "verdict": verdict,
         "confidence": round(float(overall_confidence), 3),
         "sub_scores": {k: round(float(v), 3) for k, v in scores.items()},
+        "cnn_status": cnn_result["status"],
         "suspicious_regions": [
             {"x": int(r["x"]), "y": int(r["y"]), "w": int(r["w"]), "h": int(r["h"])}
             for r in suspicious_regions

@@ -34,7 +34,7 @@
              #mynetwork {
                  width: 100%;
                  height: 600px;
-                 background-color: #0f172a;
+                 background-color: #06090e;
                  border: 1px solid lightgray;
                  position: relative;
                  float: left;
@@ -88,7 +88,7 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#ef4444", "font": {"color": "white"}, "id": "PHONE:9111111111", "label": "9111111111", "shape": "dot", "title": "PHONE:9111111111"}, {"color": "#ef4444", "font": {"color": "white"}, "id": "DEVICE:DEV-A", "label": "DEV-A", "shape": "dot", "title": "DEVICE:DEV-A"}, {"color": "#ef4444", "font": {"color": "white"}, "id": "ACCOUNT:ACC-1", "label": "ACC-1", "shape": "dot", "title": "ACCOUNT:ACC-1"}, {"color": "#ef4444", "font": {"color": "white"}, "id": "PHONE:9222222222", "label": "9222222222", "shape": "dot", "title": "PHONE:9222222222"}, {"color": "#ef4444", "font": {"color": "white"}, "id": "ACCOUNT:ACC-2", "label": "ACC-2", "shape": "dot", "title": "ACCOUNT:ACC-2"}, {"color": "#ef4444", "font": {"color": "white"}, "id": "PHONE:9333333333", "label": "9333333333", "shape": "dot", "title": "PHONE:9333333333"}, {"color": "#ef4444", "font": {"color": "white"}, "id": "ACCOUNT:ACC-3", "label": "ACC-3", "shape": "dot", "title": "ACCOUNT:ACC-3"}, {"color": "#3b82f6", "font": {"color": "white"}, "id": "PHONE:9444444444", "label": "9444444444", "shape": "dot", "title": "PHONE:9444444444"}, {"color": "#a855f7", "font": {"color": "white"}, "id": "DEVICE:DEV-B", "label": "DEV-B", "shape": "dot", "title": "DEVICE:DEV-B"}, {"color": "#22c55e", "font": {"color": "white"}, "id": "ACCOUNT:ACC-4", "label": "ACC-4", "shape": "dot", "title": "ACCOUNT:ACC-4"}]);
+                  nodes = new vis.DataSet([{"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "PHONE:9111111111", "label": "9111111111", "shape": "dot", "title": "PHONE:9111111111"}, {"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "DEVICE:DEV-A", "label": "DEV-A", "shape": "dot", "title": "DEVICE:DEV-A"}, {"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "ACCOUNT:ACC-1", "label": "ACC-1", "shape": "dot", "title": "ACCOUNT:ACC-1"}, {"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "PHONE:9222222222", "label": "9222222222", "shape": "dot", "title": "PHONE:9222222222"}, {"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "ACCOUNT:ACC-2", "label": "ACC-2", "shape": "dot", "title": "ACCOUNT:ACC-2"}, {"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "PHONE:9333333333", "label": "9333333333", "shape": "dot", "title": "PHONE:9333333333"}, {"color": "#ff3b30", "font": {"color": "#f8fafc"}, "id": "ACCOUNT:ACC-3", "label": "ACC-3", "shape": "dot", "title": "ACCOUNT:ACC-3"}, {"color": "#3b82f6", "font": {"color": "#f8fafc"}, "id": "PHONE:9444444444", "label": "9444444444", "shape": "dot", "title": "PHONE:9444444444"}, {"color": "#a855f7", "font": {"color": "#f8fafc"}, "id": "DEVICE:DEV-B", "label": "DEV-B", "shape": "dot", "title": "DEVICE:DEV-B"}, {"color": "#22c55e", "font": {"color": "#f8fafc"}, "id": "ACCOUNT:ACC-4", "label": "ACC-4", "shape": "dot", "title": "ACCOUNT:ACC-4"}]);
                   edges = new vis.DataSet([{"from": "PHONE:9111111111", "to": "DEVICE:DEV-A", "value": 1}, {"from": "PHONE:9111111111", "to": "ACCOUNT:ACC-1", "value": 1}, {"from": "DEVICE:DEV-A", "to": "ACCOUNT:ACC-1", "value": 1}, {"from": "DEVICE:DEV-A", "to": "PHONE:9222222222", "value": 1}, {"from": "DEVICE:DEV-A", "to": "ACCOUNT:ACC-2", "value": 1}, {"from": "DEVICE:DEV-A", "to": "PHONE:9333333333", "value": 1}, {"from": "DEVICE:DEV-A", "to": "ACCOUNT:ACC-3", "value": 1}, {"from": "PHONE:9222222222", "to": "ACCOUNT:ACC-2", "value": 1}, {"from": "PHONE:9333333333", "to": "ACCOUNT:ACC-3", "value": 1}, {"from": "PHONE:9444444444", "to": "DEVICE:DEV-B", "value": 1}, {"from": "PHONE:9444444444", "to": "ACCOUNT:ACC-4", "value": 1}, {"from": "DEVICE:DEV-B", "to": "ACCOUNT:ACC-4", "value": 1}]);
 
                   nodeColors = {};
@@ -100,7 +100,7 @@
                   // adding nodes and edges to the graph
                   data = {nodes: nodes, edges: edges};
 
-                  var options = {"physics": {"stabilization": true, "barnesHut": {"gravitationalConstant": -3000}}};
+                  var options = {"physics": {"stabilization": true, "barnesHut": {"gravitationalConstant": -3000}}, "nodes": {"borderWidth": 2, "shadow": true}, "edges": {"smooth": {"type": "continuous"}}};
 
                   
 

@@ -1,5 +1,16 @@
 version: "3.9"
 services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: scamlytics
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: scamlytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build: ./backend
     ports:
@@ -8,6 +19,8 @@ services:
       - ./backend/.env
     volumes:
       - ./backend/app.db:/app/app.db
+    depends_on:
+      - db
 
   frontend:
     build: ./frontend
@@ -15,3 +28,6 @@ services:
       - "5173:80"
     depends_on:
       - backend
+
+volumes:
+  postgres_data:

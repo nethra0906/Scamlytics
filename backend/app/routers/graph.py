@@ -6,7 +6,7 @@ from typing import List
 import os
 from ..database import get_db
 from ..models import Transaction
-from ..ml.graph_engine import build_fraud_graph, graph_to_html
+from ..ml.graph_engine import get_graph_repo
 
 router = APIRouter(prefix="/graph", tags=["graph"])
 
@@ -21,6 +21,9 @@ class TxInput(BaseModel):
 
 class TxBatch(BaseModel):
     transactions: List[TxInput]
+
+class GraphQuery(BaseModel):
+    query: str
 
 @router.post("/ingest")
 def ingest_transactions(payload: TxBatch, db: Session = Depends(get_db)):
@@ -46,9 +49,10 @@ def analyze_graph(db: Session = Depends(get_db)):
         for r in records
     ]
 
-    G, clusters = build_fraud_graph(tx_list)
+    repo = get_graph_repo()
+    G, clusters = repo.build_fraud_graph(tx_list)
     html_path = os.path.join(STATIC_DIR, "fraud_graph.html")
-    graph_to_html(G, clusters, html_path)
+    repo.graph_to_html(html_path)
 
     return {
         "total_nodes": G.number_of_nodes(),
@@ -63,3 +67,8 @@ def view_graph():
     if not os.path.exists(html_path):
         return {"error": "Graph not generated yet. Call /graph/analyze first."}
     return FileResponse(html_path, media_type="text/html")
+
+@router.post("/query")
+def query_graph(payload: GraphQuery):
+    repo = get_graph_repo()
+    return repo.query(payload.query)
