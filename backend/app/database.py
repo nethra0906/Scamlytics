@@ -17,8 +17,14 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+# NOTE: get_db references the module-level SessionLocal via globals() so that
+# test fixtures can replace `SessionLocal` at the module level and have the
+# change reflected here — avoiding the need for any monkey-patching.
+import sys as _sys
+
 def get_db():
-    db = SessionLocal()
+    _this = _sys.modules[__name__]
+    db = _this.SessionLocal()
     try:
         yield db
     finally:

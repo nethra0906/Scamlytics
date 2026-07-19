@@ -1,24 +1,70 @@
+"""
+scam.py — Scam analysis router.
+
+Improvements:
+  - classify_scam() runs in thread pool via run_in_executor (non-blocking)
+  - Dashboard cache invalidated after each new record
+  - PDF report cleanup: auto-delete reports older than 1 hour on generation
+"""
+import asyncio
+import logging
+import os
+import time
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-import os
+
 from ..database import get_db
 from ..models import ScamReport
 from ..ml.scam_classifier import classify_scam
 from ..utils.report_generator import generate_ncrb_report
+from ..cache import invalidate
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/scam", tags=["scam"])
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "reports")
+os.makedirs(STATIC_DIR, exist_ok=True)
+
+# Thread pool for CPU-bound ML inference
+_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="scam-ml")
+
 
 class ScamInput(BaseModel):
     text: str
-    channel: str = "unknown"   # call/whatsapp/sms/email
+    channel: str = "unknown"   # call / whatsapp / sms / email
+
+
+def _cleanup_old_reports(directory: str, max_age_seconds: int = 3600):
+    """Delete PDF reports older than max_age_seconds."""
+    now = time.time()
+    try:
+        for fname in os.listdir(directory):
+            if fname.endswith(".pdf"):
+                fpath = os.path.join(directory, fname)
+                if os.path.isfile(fpath) and (now - os.path.getmtime(fpath)) > max_age_seconds:
+                    os.remove(fpath)
+                    logger.debug("Deleted stale report: %s", fname)
+    except Exception as exc:
+        logger.warning("Report cleanup error: %s", exc)
+
 
 @router.post("/analyze")
-def analyze_scam(payload: ScamInput, db: Session = Depends(get_db)):
-    result = classify_scam(payload.text, payload.channel)
+async def analyze_scam(payload: ScamInput, db: Session = Depends(get_db)):
+    """
+    Analyze text/transcript for scam indicators.
+    ML inference runs in a thread pool to avoid blocking the async event loop.
+    """
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(
+        _executor,
+        classify_scam,
+        payload.text,
+        payload.channel,
+    )
 
     record = ScamReport(
         input_text=payload.text,
@@ -32,7 +78,12 @@ def analyze_scam(payload: ScamInput, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(record)
 
+    # Bust the dashboard stats cache so next load shows fresh counts
+    invalidate("dashboard_stats")
+    logger.info("Scam analysis saved: id=%d risk=%s prob=%.3f", record.id, record.risk_level, record.scam_probability)
+
     return {**result, "id": record.id}
+
 
 @router.get("/history")
 def get_history(db: Session = Depends(get_db)):
@@ -40,25 +91,31 @@ def get_history(db: Session = Depends(get_db)):
     return [
         {
             "id": r.id, "channel": r.channel, "risk_level": r.risk_level,
-            "scam_probability": r.scam_probability, "created_at": r.created_at
-        } for r in records
+            "scam_probability": r.scam_probability, "created_at": str(r.created_at)
+        }
+        for r in records
     ]
+
 
 @router.post("/report/{report_id}")
 def generate_scam_report(report_id: int, db: Session = Depends(get_db)):
     record = db.query(ScamReport).filter(ScamReport.id == report_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="Report not found")
-        
+
+    # Clean up old PDFs before generating a new one
+    _cleanup_old_reports(STATIC_DIR)
+
     evidence_data = {
         "record_id": record.id,
         "channel": record.channel,
         "input_text": record.input_text[:100] + "..." if len(record.input_text) > 100 else record.input_text,
         "risk_level": record.risk_level,
         "scam_probability": f"{record.scam_probability:.4f}",
-        "explanation": record.explanation
+        "explanation": record.explanation,
     }
-    
+
     filepath, ncrb_id = generate_ncrb_report("scam", evidence_data, STATIC_DIR)
-    
+    logger.info("Generated NCRB report: %s", ncrb_id)
+
     return FileResponse(filepath, media_type="application/pdf", filename=f"{ncrb_id}.pdf")

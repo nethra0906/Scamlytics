@@ -2,8 +2,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import api from "../api";
 import { Network, Play, Terminal, AlertTriangle, ChevronRight } from "lucide-react";
+import { useToast } from "../ToastContext";
 
 export default function FraudGraph() {
+  const toast = useToast();
   const [clusters, setClusters] = useState(null);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
@@ -17,7 +19,7 @@ export default function FraudGraph() {
       setClusters(res.data.clusters || []);
       setStats({ nodes: res.data.total_nodes, edges: res.data.total_edges });
     } catch (e) {
-      alert("Error: " + e.message);
+      toast.error(e?.response?.data?.detail || e.message || "Graph analysis failed.", "Analysis Error");
     }
     setLoading(false);
   };
@@ -140,7 +142,7 @@ export default function FraudGraph() {
         <div className="bg-surface-card border border-surface-border rounded-xl p-1 overflow-hidden h-[600px] relative shadow-lg">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent-dim/20 via-transparent to-transparent pointer-events-none"></div>
           <iframe
-            src="http://127.0.0.1:8000/graph/view"
+            src={`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/graph/view`}
             title="fraud-graph"
             className="w-full h-full rounded-lg"
           />

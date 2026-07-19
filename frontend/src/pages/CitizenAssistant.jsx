@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
 import { MessageSquare, Send, Bot, User, ShieldCheck } from "lucide-react";
+import { useToast } from "../ToastContext";
 
 export default function CitizenAssistant() {
+  const toast = useToast();
   const [messages, setMessages] = useState([
     { role: "assistant", content: "Hi! I'm your Citizen Fraud Shield assistant. Ask me about suspicious calls, messages, or how to report fraud. आप हिंदी में भी पूछ सकते हैं।" }
   ]);
@@ -30,7 +32,15 @@ export default function CitizenAssistant() {
       });
       setMessages([...newMessages, { role: "assistant", content: res.data.reply }]);
     } catch (e) {
-      setMessages([...newMessages, { role: "assistant", content: "Error reaching assistant: " + e.message }]);
+      if (e?.response?.status === 429) {
+        toast.warning(
+          "Too many messages sent. Please wait a moment before sending another.",
+          "Rate Limit Reached"
+        );
+        setMessages(newMessages); // Remove the loading state without an error message
+      } else {
+        setMessages([...newMessages, { role: "assistant", content: "Sorry, I couldn't reach the server. Please try again. " + (e?.message || "") }]);
+      }
     }
     setLoading(false);
   };

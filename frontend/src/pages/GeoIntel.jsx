@@ -4,8 +4,10 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import api from "../api";
 import { Map, RefreshCw, AlertTriangle, Crosshair, MapPin } from "lucide-react";
+import { useToast } from "../ToastContext";
 
 export default function GeoIntel() {
+  const toast = useToast();
   const [points, setPoints] = useState([]);
   const [hotspots, setHotspots] = useState([]);
   const [districtRisk, setDistrictRisk] = useState([]);
@@ -23,7 +25,7 @@ export default function GeoIntel() {
       setHotspots(hsRes.data);
       setDistrictRisk(drRes.data);
     } catch (e) {
-      alert("Error: " + e.message);
+      toast.error(e?.response?.data?.detail || e.message || "Failed to load geo intelligence data.", "Sync Error");
     }
     setLoading(false);
   };
