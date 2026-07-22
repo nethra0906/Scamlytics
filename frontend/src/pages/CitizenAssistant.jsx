@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
-import { MessageSquare, Send, Bot, User, ShieldCheck } from "lucide-react";
+import { Send, Bot, User } from "lucide-react";
 import { useToast } from "../ToastContext";
+import { PageHeader } from "../components/Editorial";
 
 export default function CitizenAssistant() {
   const toast = useToast();
@@ -58,18 +59,10 @@ export default function CitizenAssistant() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto space-y-6"
     >
-      <header className="flex items-center gap-3 border-b border-surface-border pb-4">
-        <div className="bg-accent/20 p-3 rounded-xl border border-accent/30">
-          <MessageSquare className="text-accent" size={32} />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold">Citizen AI Support</h1>
-          <p className="text-text-secondary mt-1 flex items-center gap-2">
-            <ShieldCheck size={14} className="text-alert-low" /> 
-            Multilingual Fraud Prevention Assistant
-          </p>
-        </div>
-      </header>
+      <PageHeader eyebrow="Module 05 — Citizen Assistant" title="Citizen AI Support">
+        A multilingual fraud-prevention copilot — explains scams, checks
+        suspicious messages, and guides reporting to 1930 / cybercrime.gov.in.
+      </PageHeader>
 
       <div className="bg-surface-card border border-surface-border rounded-xl shadow-lg overflow-hidden flex flex-col h-[600px] relative">
         {/* Decorative Grid Background */}
@@ -87,14 +80,14 @@ export default function CitizenAssistant() {
               >
                 <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center border shadow-sm ${
                   m.role === "user" 
-                    ? "bg-accent text-surface-base border-accent/20" 
+                    ? "bg-accent text-white border-accent/20" 
                     : "bg-surface-elevated text-accent border-surface-border"
                 }`}>
                   {m.role === "user" ? <User size={20} /> : <Bot size={20} />}
                 </div>
                 <div className={`max-w-[75%] px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
                   m.role === "user"
-                    ? "bg-accent text-surface-base rounded-tr-none font-medium"
+                    ? "bg-accent text-white rounded-tr-none font-medium"
                     : "bg-surface-elevated border border-surface-border text-text-primary rounded-tl-none font-sans"
                 }`}>
                   {m.content}
@@ -134,7 +127,7 @@ export default function CitizenAssistant() {
             <button
               onClick={send}
               disabled={loading || !input.trim()}
-              className="shrink-0 h-14 w-14 bg-accent hover:bg-accent-hover text-surface-base rounded-xl flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-accent shadow-md disabled:shadow-none hover:shadow-lg hover:shadow-accent/20"
+              className="shrink-0 h-14 w-14 bg-accent hover:bg-accent-hover text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-accent shadow-md disabled:shadow-none hover:shadow-lg hover:shadow-accent/20"
             >
               <Send size={20} className={input.trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
             </button>
