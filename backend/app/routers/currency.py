@@ -9,7 +9,6 @@ Improvements:
 """
 import logging
 import os
-import time
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status
 from fastapi.responses import FileResponse
@@ -18,11 +17,15 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import CurrencyCheck
 from ..ml.currency_model import analyze_currency
-from ..utils.report_generator import generate_ncrb_report
+from ..utils.report_generator import generate_ncrb_report, cleanup_old_reports
 from ..cache import invalidate
+from ..auth import require_role, TokenData
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/currency", tags=["currency"])
+
+# Counterfeit-currency intelligence is restricted to law-enforcement and bank analysts.
+require_currency_access = require_role("police", "bank")
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "reports")
 os.makedirs(STATIC_DIR, exist_ok=True)
@@ -33,23 +36,14 @@ ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
-def _cleanup_old_reports(directory: str, max_age_seconds: int = 3600):
-    now = time.time()
-    try:
-        for fname in os.listdir(directory):
-            if fname.endswith(".pdf"):
-                fpath = os.path.join(directory, fname)
-                if os.path.isfile(fpath) and (now - os.path.getmtime(fpath)) > max_age_seconds:
-                    os.remove(fpath)
-                    logger.debug("Deleted stale report: %s", fname)
-    except Exception as exc:
-        logger.warning("Report cleanup error: %s", exc)
-
-
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @router.post("/analyze")
-async def analyze(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def analyze(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_currency_access),
+):
     """
     Analyze a currency image for counterfeit indicators.
 
@@ -73,7 +67,12 @@ async def analyze(file: UploadFile = File(...), db: Session = Depends(get_db)):
     result = analyze_currency(image_bytes)
 
     if "error" in result:
-        return result
+        # e.g. the bytes weren't a decodable image — surface as a client error
+        # rather than a misleading HTTP 200.
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=result["error"],
+        )
 
     record = CurrencyCheck(
         filename=file.filename,
@@ -93,7 +92,10 @@ async def analyze(file: UploadFile = File(...), db: Session = Depends(get_db)):
 
 
 @router.get("/history")
-def history(db: Session = Depends(get_db)):
+def history(
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_currency_access),
+):
     records = db.query(CurrencyCheck).order_by(CurrencyCheck.id.desc()).limit(50).all()
     return [
         {"id": r.id, "filename": r.filename, "verdict": r.verdict,
@@ -103,12 +105,16 @@ def history(db: Session = Depends(get_db)):
 
 
 @router.post("/report/{report_id}")
-def generate_currency_report(report_id: int, db: Session = Depends(get_db)):
+def generate_currency_report(
+    report_id: int,
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_currency_access),
+):
     record = db.query(CurrencyCheck).filter(CurrencyCheck.id == report_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    _cleanup_old_reports(STATIC_DIR)
+    cleanup_old_reports(STATIC_DIR)
 
     evidence_data = {
         "record_id": record.id,

@@ -9,7 +9,6 @@ Improvements:
 import asyncio
 import logging
 import os
-import time
 from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -20,7 +19,7 @@ from pydantic import BaseModel
 from ..database import get_db
 from ..models import ScamReport
 from ..ml.scam_classifier import classify_scam
-from ..utils.report_generator import generate_ncrb_report
+from ..utils.report_generator import generate_ncrb_report, cleanup_old_reports
 from ..cache import invalidate
 
 logger = logging.getLogger(__name__)
@@ -36,20 +35,6 @@ _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="scam-ml")
 class ScamInput(BaseModel):
     text: str
     channel: str = "unknown"   # call / whatsapp / sms / email
-
-
-def _cleanup_old_reports(directory: str, max_age_seconds: int = 3600):
-    """Delete PDF reports older than max_age_seconds."""
-    now = time.time()
-    try:
-        for fname in os.listdir(directory):
-            if fname.endswith(".pdf"):
-                fpath = os.path.join(directory, fname)
-                if os.path.isfile(fpath) and (now - os.path.getmtime(fpath)) > max_age_seconds:
-                    os.remove(fpath)
-                    logger.debug("Deleted stale report: %s", fname)
-    except Exception as exc:
-        logger.warning("Report cleanup error: %s", exc)
 
 
 @router.post("/analyze")
@@ -104,7 +89,7 @@ def generate_scam_report(report_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Report not found")
 
     # Clean up old PDFs before generating a new one
-    _cleanup_old_reports(STATIC_DIR)
+    cleanup_old_reports(STATIC_DIR)
 
     evidence_data = {
         "record_id": record.id,

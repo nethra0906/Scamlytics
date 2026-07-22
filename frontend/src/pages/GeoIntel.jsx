@@ -170,7 +170,8 @@ export default function GeoIntel() {
                         {d.risk_level} RISK
                       </span>
                       <div className="text-xs font-mono text-text-muted mt-2">
-                        SCORE: <span className="text-text-primary font-bold">{(d.risk_score * 100).toFixed(0)}</span>
+                        {/* backend already returns risk_score on a 0–100 scale */}
+                        SCORE: <span className="text-text-primary font-bold">{d.risk_score.toFixed(0)}</span>
                       </div>
                     </div>
                   </div>

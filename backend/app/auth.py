@@ -52,7 +52,9 @@ class TokenData(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
-    role: str          # police | bank | citizen
+    # Optional + ignored: the authoritative role comes from the user store,
+    # not from what the client claims. Kept for backward-compatible payloads.
+    role: Optional[str] = None
 
 
 # ── Demo user store (replaces a real DB for hackathon purposes) ─────────────

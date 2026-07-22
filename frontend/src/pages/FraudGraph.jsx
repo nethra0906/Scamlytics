@@ -80,6 +80,12 @@ export default function FraudGraph() {
               EXECUTE
             </button>
           </form>
+          <p className="mt-2 ml-4 text-[10px] font-mono text-text-muted">
+            Try: <span className="text-text-secondary">COUNT</span> ·{" "}
+            <span className="text-text-secondary">SUSPICIOUS</span> ·{" "}
+            <span className="text-text-secondary">HUBS</span> ·{" "}
+            <span className="text-text-secondary">PHONE:&lt;number&gt;</span>
+          </p>
           {queryResult && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 ml-4 pl-3 border-l-2 border-surface-border text-sm font-mono text-text-secondary">
               {queryResult}

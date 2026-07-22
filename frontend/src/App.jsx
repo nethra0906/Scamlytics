@@ -1,9 +1,10 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
-import { Shield, Activity, Map, MessageSquare, Monitor, LayoutDashboard } from "lucide-react";
-import { useRole } from "./RoleContext";
+import { Shield, Activity, Map, MessageSquare, Monitor, LayoutDashboard, LogOut } from "lucide-react";
+import { useRole, useAuth } from "./RoleContext";
 import { ToastProvider } from "./ToastContext";
 import { SkeletonPage } from "./components/Skeleton";
+import Login from "./pages/Login";
 
 // ── Code-split page components ────────────────────────────────────────────────
 // Each page is loaded on demand via React.lazy so the initial bundle is smaller.
@@ -66,12 +67,28 @@ function RoleGuard({ allowedRoles, children }) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 function App() {
-  const { role, setRole } = useRole();
-
   return (
     <BrowserRouter>
-      {/* ToastProvider lives inside BrowserRouter so toasts can be triggered from any page */}
+      {/* ToastProvider lives inside BrowserRouter so toasts can be triggered from any page (login included) */}
       <ToastProvider>
+        <AuthGate />
+      </ToastProvider>
+    </BrowserRouter>
+  );
+}
+
+// Gate the whole app behind authentication. Unauthenticated users see the login screen.
+function AuthGate() {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Login />;
+  return <AppShell />;
+}
+
+function AppShell() {
+  const { role, user, logout } = useAuth();
+
+  return (
+    <>
         <div className="min-h-screen bg-surface-base flex flex-col">
           {/* Top Navigation Bar */}
           <header className="sticky top-0 z-50 bg-surface-base/80 backdrop-blur-md border-b border-surface-border shadow-sm">
@@ -92,20 +109,24 @@ function App() {
                   <NavLinks />
                 </nav>
 
-                {/* Role Selector */}
+                {/* Authenticated user + logout */}
                 <div className="flex items-center gap-3 ml-auto">
-                  <span className="text-xs text-text-muted font-mono uppercase tracking-wider hidden sm:inline-block">
-                    Clearance Level:
-                  </span>
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="bg-surface-elevated border border-surface-border text-text-primary text-sm rounded-md px-3 py-1.5 focus:outline-none focus:border-accent font-mono transition-colors cursor-pointer"
+                  <div className="hidden sm:flex flex-col items-end leading-tight">
+                    <span className="text-sm font-mono text-text-primary">{user}</span>
+                    <span className="text-[10px] text-accent font-mono uppercase tracking-wider">
+                      {role} · Clearance
+                    </span>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-accent text-xs font-mono font-bold uppercase">
+                    {(user || "?").slice(0, 2)}
+                  </div>
+                  <button
+                    onClick={logout}
+                    title="Sign out"
+                    className="flex items-center gap-1.5 text-text-muted hover:text-alert-high border border-surface-border hover:border-alert-high/50 rounded-md px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors"
                   >
-                    <option value="Police">POLICE_INTEL</option>
-                    <option value="Bank">BANK_ANALYST</option>
-                    <option value="Citizen">CITIZEN_PUBLIC</option>
-                  </select>
+                    <LogOut size={14} /> <span className="hidden sm:inline">Logout</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -167,8 +188,7 @@ function App() {
             </Suspense>
           </main>
         </div>
-      </ToastProvider>
-    </BrowserRouter>
+    </>
   );
 }
 

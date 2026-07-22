@@ -30,21 +30,33 @@ class CurrencyCNN:
         self.model = None
         self.device = None
         self.transform = None
-        
-        if TORCH_AVAILABLE:
+
+        # Lazy build: only construct MobileNetV2 when trained weights actually
+        # exist on disk. Building it unconditionally would download ImageNet
+        # weights over the network at import time for a model that otherwise
+        # sits unused in fallback mode (breaking offline/air-gapped startup).
+        if TORCH_AVAILABLE and os.path.exists(self.weights_path):
             self._build_model()
             self._load_weights()
+        elif TORCH_AVAILABLE:
+            logger.info(
+                "CurrencyCNN weights not found at %s — CNN disabled, using OpenCV heuristics only.",
+                self.weights_path,
+            )
 
     def _build_model(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-        # Load pre-trained MobileNetV2
-        self.model = models.mobilenet_v2(pretrained=True)
-        
+        # Build MobileNetV2 architecture with random init. We reach this path
+        # only when a fine-tuned state_dict exists (loaded below), so the base
+        # ImageNet weights would be overwritten anyway — avoid the download.
+        # (weights=None replaces the deprecated pretrained=False argument.)
+        self.model = models.mobilenet_v2(weights=None)
+
         # Freeze early layers
         for param in self.model.features[:-4].parameters():
             param.requires_grad = False
-            
+
         # Replace classifier for binary classification (Genuine vs Counterfeit)
         num_features = self.model.classifier[1].in_features
         self.model.classifier = nn.Sequential(
