@@ -2,13 +2,13 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import { RoleProvider } from './RoleContext.jsx'
+import { AuthProvider } from './RoleContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RoleProvider>
+    <AuthProvider>
       <App />
-    </RoleProvider>
+    </AuthProvider>
   </StrictMode>,
 )
 

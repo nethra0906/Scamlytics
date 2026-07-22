@@ -5,8 +5,12 @@ from typing import List, Optional
 from ..database import get_db
 from ..models import FraudIncident
 from ..utils.geo_utils import simple_grid_clustering, district_risk_scoring
+from ..auth import require_role, TokenData
 
 router = APIRouter(prefix="/geo", tags=["geo"])
+
+# Geospatial crime intelligence is restricted to law enforcement.
+require_geo_access = require_role("police")
 
 class IncidentInput(BaseModel):
     latitude: float
@@ -18,7 +22,11 @@ class IncidentBatch(BaseModel):
     incidents: List[IncidentInput]
 
 @router.post("/ingest")
-def ingest_incidents(payload: IncidentBatch, db: Session = Depends(get_db)):
+def ingest_incidents(
+    payload: IncidentBatch,
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_geo_access),
+):
     for inc in payload.incidents:
         db.add(FraudIncident(
             latitude=inc.latitude,
@@ -30,7 +38,10 @@ def ingest_incidents(payload: IncidentBatch, db: Session = Depends(get_db)):
     return {"ingested": len(payload.incidents)}
 
 @router.get("/heatmap")
-def get_heatmap_points(db: Session = Depends(get_db)):
+def get_heatmap_points(
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_geo_access),
+):
     records = db.query(FraudIncident).all()
     return [
         {"lat": r.latitude, "lng": r.longitude, "type": r.incident_type, "district": r.district}
@@ -38,7 +49,10 @@ def get_heatmap_points(db: Session = Depends(get_db)):
     ]
 
 @router.get("/hotspots")
-def get_hotspots(db: Session = Depends(get_db)):
+def get_hotspots(
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_geo_access),
+):
     records = db.query(FraudIncident).all()
     incidents = [
         {"latitude": r.latitude, "longitude": r.longitude,
@@ -48,7 +62,10 @@ def get_hotspots(db: Session = Depends(get_db)):
     return simple_grid_clustering(incidents)
 
 @router.get("/district-risk")
-def get_district_risk(db: Session = Depends(get_db)):
+def get_district_risk(
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_geo_access),
+):
     records = db.query(FraudIncident).all()
     incidents = [
         {"latitude": r.latitude, "longitude": r.longitude,

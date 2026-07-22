@@ -58,3 +58,26 @@ def client():
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+# ── 7. Auth header helpers ────────────────────────────────────────────────────
+
+def _auth_headers(client, username, password):
+    res = client.post("/auth/login", json={"username": username, "password": password})
+    assert res.status_code == 200, res.text
+    return {"Authorization": f"Bearer {res.json()['access_token']}"}
+
+
+@pytest.fixture()
+def police_headers(client):
+    return _auth_headers(client, "police", "police123")
+
+
+@pytest.fixture()
+def bank_headers(client):
+    return _auth_headers(client, "bank", "bank123")
+
+
+@pytest.fixture()
+def citizen_headers(client):
+    return _auth_headers(client, "citizen", "citizen123")

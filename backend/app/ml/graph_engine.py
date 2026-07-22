@@ -117,12 +117,90 @@ class NetworkXGraphRepository(GraphRepository):
         net.write_html(out_path)
         return out_path
 
+    # ── Query engine ──────────────────────────────────────────────────────────
+    # A small intent-based query interpreter over the in-memory NetworkX graph.
+    # It is Cypher-*flavoured* (the UI calls it a query console) but runs real
+    # graph computations rather than pattern-matching on the query string.
+
+    _HELP = (
+        "Supported queries: "
+        "COUNT (nodes/edges) · "
+        "SUSPICIOUS (flagged clusters) · "
+        "HUBS / TOP (most-connected nodes) · "
+        "a node id like PHONE:98xxxxxxx, DEVICE:xxx or ACCOUNT:xxx (neighbours)."
+    )
+
     def query(self, query_string: str):
-        if "COUNT(N)" in query_string.upper():
-            return {"result": f"Nodes: {self.G.number_of_nodes()}, Edges: {self.G.number_of_edges()}"}
-        if "SUSPICIOUS" in query_string.upper():
-            return {"result": f"Found {sum(1 for c in self.clusters if c['is_suspicious'])} suspicious clusters"}
-        return {"result": "Query executed via NetworkX fallback. Neo4j driver not active."}
+        q = (query_string or "").strip()
+        ql = q.upper()
+
+        if self.G is None or self.G.number_of_nodes() == 0:
+            return {"result": "Graph is empty — ingest transactions and run analysis first."}
+
+        # 1. Specific node lookup (PHONE:/DEVICE:/ACCOUNT: token, case-insensitive)
+        node = self._find_referenced_node(q)
+        if node is not None:
+            neighbours = sorted(self.G.neighbors(node))
+            degree = self.G.degree(node)
+            preview = ", ".join(neighbours[:10]) + ("…" if len(neighbours) > 10 else "")
+            return {
+                "result": f"{node} — degree {degree}, {len(neighbours)} direct link(s): {preview}",
+                "node": node,
+                "degree": degree,
+                "neighbours": neighbours,
+            }
+
+        # 2. Suspicious clusters
+        if "SUSPICIOUS" in ql or "FRAUD" in ql or "RING" in ql:
+            suspicious = [c for c in self.clusters if c["is_suspicious"]]
+            if not suspicious:
+                return {"result": "No suspicious clusters detected in the current graph.", "clusters": []}
+            lines = [
+                f"#{c['cluster_id']} (size {c['size']}: "
+                f"{c['phone_count']}P/{c['device_count']}D/{c['account_count']}A)"
+                for c in suspicious
+            ]
+            return {
+                "result": f"Found {len(suspicious)} suspicious cluster(s): " + "; ".join(lines),
+                "clusters": suspicious,
+            }
+
+        # 3. Connection hubs (top nodes by degree — likely shared devices/accounts)
+        if "HUB" in ql or "TOP" in ql or "CENTRAL" in ql or "DEGREE" in ql:
+            ranked = sorted(self.G.degree, key=lambda kv: kv[1], reverse=True)[:5]
+            lines = [f"{n} ({d} links)" for n, d in ranked]
+            return {
+                "result": "Top connection hubs: " + ", ".join(lines),
+                "hubs": [{"node": n, "degree": d} for n, d in ranked],
+            }
+
+        # 4. Counts
+        if "COUNT" in ql or "NODE" in ql or "EDGE" in ql:
+            return {
+                "result": f"Nodes: {self.G.number_of_nodes()}, "
+                          f"Edges: {self.G.number_of_edges()}, "
+                          f"Clusters: {len(self.clusters)} "
+                          f"({sum(1 for c in self.clusters if c['is_suspicious'])} suspicious)",
+                "nodes": self.G.number_of_nodes(),
+                "edges": self.G.number_of_edges(),
+            }
+
+        # 5. Fallback → help
+        return {"result": self._HELP}
+
+    def _find_referenced_node(self, q: str):
+        """Return a graph node id referenced in the query, matched case-insensitively."""
+        for prefix in ("PHONE:", "DEVICE:", "ACCOUNT:"):
+            idx = q.upper().find(prefix)
+            if idx == -1:
+                continue
+            # Grab the token (id may contain digits/letters), strip Cypher punctuation
+            token = q[idx:].split()[0].strip("()[]{}\"'`,")
+            lookup = {n.upper(): n for n in self.G.nodes}
+            match = lookup.get(token.upper())
+            if match:
+                return match
+        return None
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────

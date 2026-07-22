@@ -7,8 +7,12 @@ import os
 from ..database import get_db
 from ..models import Transaction
 from ..ml.graph_engine import get_graph_repo
+from ..auth import require_role, TokenData
 
 router = APIRouter(prefix="/graph", tags=["graph"])
+
+# Fraud-network intelligence is restricted to law enforcement.
+require_graph_access = require_role("police")
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
@@ -26,7 +30,11 @@ class GraphQuery(BaseModel):
     query: str
 
 @router.post("/ingest")
-def ingest_transactions(payload: TxBatch, db: Session = Depends(get_db)):
+def ingest_transactions(
+    payload: TxBatch,
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_graph_access),
+):
     for tx in payload.transactions:
         db.add(Transaction(
             phone_number=tx.phone_number,
@@ -38,7 +46,10 @@ def ingest_transactions(payload: TxBatch, db: Session = Depends(get_db)):
     return {"ingested": len(payload.transactions)}
 
 @router.get("/analyze")
-def analyze_graph(db: Session = Depends(get_db)):
+def analyze_graph(
+    db: Session = Depends(get_db),
+    user: TokenData = Depends(require_graph_access),
+):
     records = db.query(Transaction).all()
     if not records:
         return {"clusters": [], "message": "No transactions ingested yet"}
@@ -69,6 +80,9 @@ def view_graph():
     return FileResponse(html_path, media_type="text/html")
 
 @router.post("/query")
-def query_graph(payload: GraphQuery):
+def query_graph(
+    payload: GraphQuery,
+    user: TokenData = Depends(require_graph_access),
+):
     repo = get_graph_repo()
     return repo.query(payload.query)

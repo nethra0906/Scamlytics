@@ -23,6 +23,22 @@ India registered **1.14 million cybercrime complaints in 2023**, and "digital ar
 | 🗺️ **Geospatial Crime Intelligence** | Plots fraud incidents on a map → hotspot detection, district-wise risk scoring |
 | 🤖 **Citizen Fraud Assistant** | Multilingual chatbot — explains scams, analyzes suspicious messages, guides reporting to cybercrime.gov.in / 1930 |
 
+## 🔐 Access Control (Roles)
+
+Access is gated by a **JWT login** and enforced **server-side** — the role is not a
+client-side toggle. Sign in decides which modules you can reach:
+
+| Role | Login | Can access |
+|---|---|---|
+| **Police** | `police / police123` | All modules |
+| **Bank** | `bank / bank123` | Dashboard, Scam Checker, Currency Checker |
+| **Citizen** | `citizen / citizen123` | Dashboard, Scam Checker, Citizen Assistant |
+
+Currency (`/currency/*`) requires **police or bank**; Fraud Graph (`/graph/*`) and
+Geo Intel (`/geo/*`) are **police-only** — other roles get an HTTP `403`.
+Auth behaviour is configurable via env vars (`JWT_SECRET_KEY`, `JWT_EXPIRE_HOURS`,
+`REQUIRE_AUTH`).
+
 ## 🏗️ Architecture
 
 ```
@@ -128,12 +144,22 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in `backend/`:
+Create a `.env` file in `backend/` (all values are optional — the app boots
+without them; only the chatbot needs the Groq key):
 
 ```env
-GROQ_API_KEY=your_free_groq_key_here
-DATABASE_URL=sqlite:///./app.db
+GROQ_API_KEY=your_free_groq_key_here     # optional — chatbot degrades gracefully if unset
+DATABASE_URL=sqlite:///./app.db          # swap for postgresql://… in production
+JWT_SECRET_KEY=change-me-in-production    # optional — a default is used otherwise
+JWT_EXPIRE_HOURS=8                        # optional
+# ALLOWED_ORIGINS=http://localhost:5173   # optional CORS allow-list
+# REDIS_URL=redis://localhost:6379/0      # optional — falls back to in-memory cache
 ```
+
+> **Note:** the counterfeit-currency **CNN is optional** and not installed by
+> default (it stays disabled and falls back to OpenCV heuristics). To enable it,
+> install `torch`/`torchvision` for your platform and drop trained weights into
+> `backend/app/ml/weights/`.
 
 Train the scam classifier (one-time):
 
@@ -161,20 +187,26 @@ App available at → `http://localhost:5173`
 
 ## 🔌 API Reference
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/scam/analyze` | Analyze text for scam indicators |
-| `GET` | `/scam/history` | Recent scam analysis history |
-| `POST` | `/currency/analyze` | Upload currency note image for verification |
-| `GET` | `/currency/history` | Recent currency check history |
-| `POST` | `/graph/ingest` | Ingest transaction records |
-| `GET` | `/graph/analyze` | Get fraud clusters |
-| `GET` | `/graph/view` | Interactive fraud network graph (HTML) |
-| `POST` | `/geo/ingest` | Ingest fraud incident coordinates |
-| `GET` | `/geo/heatmap` | Raw incident points |
-| `GET` | `/geo/hotspots` | Detected crime hotspots |
-| `GET` | `/geo/district-risk` | District-wise risk scoring |
-| `POST` | `/chat/message` | Chat with the citizen fraud assistant |
+| Method | Endpoint | Role | Description |
+|---|---|---|---|
+| `POST` | `/auth/login` | public | Exchange username/password for a JWT |
+| `GET` | `/auth/me` | any | Current token payload |
+| `GET` | `/dashboard/stats` | any | Aggregated dashboard statistics (cached) |
+| `POST` | `/scam/analyze` | any | Analyze text for scam indicators |
+| `GET` | `/scam/history` | any | Recent scam analysis history |
+| `POST` | `/scam/report/{id}` | any | Generate NCRB-style PDF for a scam record |
+| `POST` | `/currency/analyze` | police, bank | Upload currency note image for verification |
+| `GET` | `/currency/history` | police, bank | Recent currency check history |
+| `POST` | `/graph/ingest` | police | Ingest transaction records |
+| `GET` | `/graph/analyze` | police | Get fraud clusters |
+| `GET` | `/graph/view` | public | Interactive fraud network graph (HTML, iframe-embeddable) |
+| `POST` | `/graph/query` | police | Query the graph — `COUNT`, `SUSPICIOUS`, `HUBS`, or a node id |
+| `POST` | `/geo/ingest` | police | Ingest fraud incident coordinates |
+| `GET` | `/geo/heatmap` | police | Raw incident points |
+| `GET` | `/geo/hotspots` | police | Detected crime hotspots |
+| `GET` | `/geo/district-risk` | police | District-wise risk scoring |
+| `POST` | `/audio/analyze` | any | ⚠️ Demo stub — simulated deepfake result |
+| `POST` | `/chat/message` | any | Chat with the citizen fraud assistant (rate-limited) |
 
 ## 🧪 Testing
 
@@ -193,7 +225,9 @@ Use the Swagger UI at `/docs` to test each endpoint interactively, or use the fr
 
 - **Scam classifier** trained on a small synthetic dataset — production use would need a larger labeled corpus of real scam transcripts.
 - **Currency detection** uses classical CV heuristics (no labeled FICN dataset available) rather than a trained CNN — a documented, explainable trade-off for hackathon scope. Swapping in a fine-tuned CNN is a planned improvement.
+- **Audio deepfake** detection is a **demo stub** that returns a simulated result — it is clearly labeled as such in the UI and API and is not real spoofing detection.
 - **SQLite** is used for simplicity — swap `DATABASE_URL` for PostgreSQL in production.
+- **Auth** ships with in-source demo users and a default JWT secret — set `JWT_SECRET_KEY` and back it with a real user store for production.
 
 ## 🔮 Future Improvements
 

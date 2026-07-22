@@ -66,10 +66,12 @@ export default function ScamChecker() {
         note: res.data.note,
       });
 
+      // NOTE: the audio endpoint is a demo stub (randomised). Keep the toast
+      // honest so users don't mistake it for a real forensic verdict.
       if (res.data.is_spoofed) {
-        toast.error("Deepfake audio signature detected.", "Audio Spoofing Alert");
+        toast.warning("Simulated deepfake flag (demo module — not a real verdict).", "Audio Analysis (Demo)");
       } else {
-        toast.success("Audio appears authentic. No deepfake signatures found.", "Audio Clean");
+        toast.info("Simulated clean result (demo module — not a real verdict).", "Audio Analysis (Demo)");
       }
     } catch (e) {
       const msg = e?.response?.data?.detail || e.message || "Audio analysis failed.";

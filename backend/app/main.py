@@ -10,6 +10,7 @@ main.py — FastAPI application entry point.
 import logging
 import os
 from contextlib import asynccontextmanager
+from logging.handlers import RotatingFileHandler
 
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,7 +30,14 @@ logging.basicConfig(
     format=LOG_FORMAT,
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("scamlytics.log", encoding="utf-8"),
+        # Rotating file handler so the log can't grow unbounded on disk
+        # (5 MB per file, keep 3 backups).
+        RotatingFileHandler(
+            "scamlytics.log",
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
+            encoding="utf-8",
+        ),
     ],
 )
 logger = logging.getLogger("scamlytics")
@@ -54,11 +62,8 @@ async def lifespan(app: FastAPI):
                 for r in records
             ]
             repo = get_graph_repo()
-            repo.build_fraud_graph(tx_list)
-            logger.info(
-                "Fraud graph rebuilt from DB: %d transactions → %d nodes",
-                len(records), repo.G.number_of_nodes(),
-            )
+            # rebuild_from_transactions logs node/edge/cluster counts at INFO
+            repo.rebuild_from_transactions(tx_list)
         else:
             logger.info("No transactions in DB — fraud graph starts empty")
     except Exception as exc:
@@ -153,3 +158,12 @@ def root():
         "service": "scamlytics-digital-public-safety-ai",
         "version": "2.0.0",
     }
+
+# ── Local runner ──────────────────────────────────────────────────────────────
+# Preferred launch (from the backend/ dir):  uvicorn app.main:app --reload
+# This block only enables `python -m app.main`. Note that `python app/main.py`
+# will NOT work — the package-relative imports above require the `app` package
+# context, which only exists when launched as a module.
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

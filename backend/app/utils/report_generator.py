@@ -1,16 +1,40 @@
 import os
+import time
+import uuid
+import logging
 from fpdf import FPDF
 from datetime import datetime
 import hashlib
+
+logger = logging.getLogger(__name__)
+
+
+def cleanup_old_reports(directory: str, max_age_seconds: int = 3600):
+    """Delete generated PDF reports older than max_age_seconds (best-effort)."""
+    now = time.time()
+    try:
+        for fname in os.listdir(directory):
+            if fname.endswith(".pdf"):
+                fpath = os.path.join(directory, fname)
+                if os.path.isfile(fpath) and (now - os.path.getmtime(fpath)) > max_age_seconds:
+                    os.remove(fpath)
+                    logger.debug("Deleted stale report: %s", fname)
+    except FileNotFoundError:
+        pass
+    except Exception as exc:
+        logger.warning("Report cleanup error: %s", exc)
+
 
 def generate_ncrb_report(module_source: str, evidence_data: dict, output_dir: str):
     """
     Generates a simulated NCRB/cybercrime.gov.in incident report as a PDF.
     """
     os.makedirs(output_dir, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_id = f"NCRB_{module_source.upper()}_{timestamp}"
+
+    # Microsecond precision + short random suffix so two reports generated in
+    # the same second don't collide/overwrite each other.
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    report_id = f"NCRB_{module_source.upper()}_{timestamp}_{uuid.uuid4().hex[:6]}"
     filename = f"{report_id}.pdf"
     filepath = os.path.join(output_dir, filename)
     
