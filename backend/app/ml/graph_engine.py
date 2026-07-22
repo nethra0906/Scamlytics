@@ -46,7 +46,7 @@ class NetworkXGraphRepository(GraphRepository):
         logger.info("Rebuilding fraud graph from %d persisted transactions…", len(transactions))
         G, clusters = self.build_fraud_graph(transactions)
         logger.info(
-            "Graph rebuilt — nodes: %d, edges: %d, clusters: %d (suspicious: %d)",
+            "Graph rebuilt - nodes: %d, edges: %d, clusters: %d (suspicious: %d)",
             G.number_of_nodes(),
             G.number_of_edges(),
             len(clusters),
@@ -135,7 +135,7 @@ class NetworkXGraphRepository(GraphRepository):
         ql = q.upper()
 
         if self.G is None or self.G.number_of_nodes() == 0:
-            return {"result": "Graph is empty — ingest transactions and run analysis first."}
+            return {"result": "Graph is empty - ingest transactions and run analysis first."}
 
         # 1. Specific node lookup (PHONE:/DEVICE:/ACCOUNT: token, case-insensitive)
         node = self._find_referenced_node(q)
@@ -144,7 +144,7 @@ class NetworkXGraphRepository(GraphRepository):
             degree = self.G.degree(node)
             preview = ", ".join(neighbours[:10]) + ("…" if len(neighbours) > 10 else "")
             return {
-                "result": f"{node} — degree {degree}, {len(neighbours)} direct link(s): {preview}",
+                "result": f"{node} - degree {degree}, {len(neighbours)} direct link(s): {preview}",
                 "node": node,
                 "degree": degree,
                 "neighbours": neighbours,

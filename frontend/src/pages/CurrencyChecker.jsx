@@ -91,7 +91,7 @@ export default function CurrencyChecker() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      <PageHeader eyebrow="Module 02 — Currency Intelligence" title="Counterfeit Intelligence">
+      <PageHeader eyebrow="Module 02 - Currency Intelligence" title="Counterfeit Intelligence">
         Explainable computer-vision analysis of physical currency notes, with
         suspicious regions highlighted on the scan.
       </PageHeader>

@@ -97,7 +97,7 @@ def test_currency_history(client, bank_headers):
 
 
 def test_currency_requires_auth(client):
-    """Currency is restricted to police/bank — a guest (citizen) is forbidden."""
+    """Currency is restricted to police/bank - a guest (citizen) is forbidden."""
     res = client.get("/currency/history")
     assert res.status_code == 403
 
@@ -174,7 +174,7 @@ def test_geo_ingest_and_heatmap(client, police_headers):
 
 
 def test_geo_requires_police(client, bank_headers):
-    """Geo intel is police-only — even an authenticated bank analyst is forbidden."""
+    """Geo intel is police-only - even an authenticated bank analyst is forbidden."""
     assert client.get("/geo/heatmap").status_code == 403
     assert client.get("/geo/heatmap", headers=bank_headers).status_code == 403
 

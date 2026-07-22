@@ -24,7 +24,7 @@ export default function Login() {
     setLoading(true);
     try {
       const role = await login(username.trim(), password);
-      toast.success(`Signed in — clearance ${role.toUpperCase()}`, "Access Granted");
+      toast.success(`Signed in - clearance ${role.toUpperCase()}`, "Access Granted");
     } catch (err) {
       const msg =
         err?.response?.status === 401

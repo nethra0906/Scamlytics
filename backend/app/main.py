@@ -24,7 +24,7 @@ from .auth import LoginRequest, authenticate_user, create_access_token, TokenDat
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 
-LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s — %(message)s"
+LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
 logging.basicConfig(
     level=logging.INFO,
     format=LOG_FORMAT,
@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
             # rebuild_from_transactions logs node/edge/cluster counts at INFO
             repo.rebuild_from_transactions(tx_list)
         else:
-            logger.info("No transactions in DB — fraud graph starts empty")
+            logger.info("No transactions in DB - fraud graph starts empty")
     except Exception as exc:
         logger.error("Startup graph rebuild failed: %s", exc)
     finally:
@@ -76,7 +76,7 @@ async def lifespan(app: FastAPI):
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="Scamlytics — Digital Public Safety AI",
+    title="Scamlytics - Digital Public Safety AI",
     description=(
         "Multi-agency fraud detection platform: scam analysis, "
         "counterfeit currency detection, fraud graph intelligence, "

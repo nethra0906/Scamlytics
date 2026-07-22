@@ -40,7 +40,7 @@ class CurrencyCNN:
             self._load_weights()
         elif TORCH_AVAILABLE:
             logger.info(
-                "CurrencyCNN weights not found at %s — CNN disabled, using OpenCV heuristics only.",
+                "CurrencyCNN weights not found at %s - CNN disabled, using OpenCV heuristics only.",
                 self.weights_path,
             )
 

@@ -59,8 +59,8 @@ export default function CitizenAssistant() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto space-y-6"
     >
-      <PageHeader eyebrow="Module 05 — Citizen Assistant" title="Citizen AI Support">
-        A multilingual fraud-prevention copilot — explains scams, checks
+      <PageHeader eyebrow="Module 05 - Citizen Assistant" title="Citizen AI Support">
+        A multilingual fraud-prevention copilot - explains scams, checks
         suspicious messages, and guides reporting to 1930 / cybercrime.gov.in.
       </PageHeader>
 

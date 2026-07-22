@@ -123,7 +123,7 @@ function Footer() {
           </div>
         </div>
         <div className="mt-12 pt-6 border-t border-surface-border flex flex-col sm:flex-row justify-between gap-3 text-[10px] font-mono uppercase tracking-[0.2em] text-text-muted">
-          <span>© 2026 Scamlytics — Hackathon Build</span>
+          <span>© 2026 Scamlytics - Hackathon Build</span>
           <span>AI for Digital Public Safety</span>
         </div>
       </div>

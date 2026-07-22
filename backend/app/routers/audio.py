@@ -29,6 +29,6 @@ async def analyze_audio(file: UploadFile = File(...)):
         "confidence": round(confidence, 4),
         "model_used": "mocked-wav2vec2-spoof-detector",
         "is_mock": True,
-        "note": "DEMO ONLY — simulated result, not real deepfake detection. "
+        "note": "DEMO ONLY - simulated result, not real deepfake detection. "
                 "Production deployment requires a trained audio spoofing model.",
     }

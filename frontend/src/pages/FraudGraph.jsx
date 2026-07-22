@@ -45,7 +45,7 @@ export default function FraudGraph() {
     >
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
         <div>
-          <SectionLabel>Module 03 — Fraud Graph</SectionLabel>
+          <SectionLabel>Module 03 - Fraud Graph</SectionLabel>
           <h1 className="display-serif text-4xl sm:text-5xl mt-5">Fraud Network Intelligence</h1>
           <p className="mt-4 max-w-lg text-text-secondary leading-relaxed">
             Multi-modal graph analysis linking phones, devices, and accounts to surface coordinated fraud rings.

@@ -19,7 +19,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
-      .then((reg) => console.info('[SW] Registered — scope:', reg.scope))
+      .then((reg) => console.info('[SW] Registered - scope:', reg.scope))
       .catch((err) => console.warn('[SW] Registration failed:', err));
   });
 } else if (!import.meta.env.PROD && 'serviceWorker' in navigator) {

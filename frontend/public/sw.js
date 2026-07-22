@@ -64,7 +64,7 @@ self.addEventListener("fetch", (event) => {
           caches.match(request).then((cached) => {
             if (cached) return cached;
             return new Response(
-              JSON.stringify({ error: "Offline — cached response unavailable." }),
+              JSON.stringify({ error: "Offline - cached response unavailable." }),
               { headers: { "Content-Type": "application/json" } }
             );
           })

@@ -49,7 +49,7 @@ def _init_redis():
     global _redis_client, _redis_available
     redis_url = os.getenv("REDIS_URL", "")
     if not redis_url:
-        logger.info("REDIS_URL not set — using in-memory cache fallback")
+        logger.info("REDIS_URL not set - using in-memory cache fallback")
         return
     try:
         import redis  # noqa: PLC0415
@@ -59,7 +59,7 @@ def _init_redis():
         _redis_available = True
         logger.info("Redis cache connected: %s", redis_url)
     except Exception as exc:
-        logger.warning("Redis unavailable (%s) — using in-memory cache fallback", exc)
+        logger.warning("Redis unavailable (%s) - using in-memory cache fallback", exc)
 
 
 _init_redis()

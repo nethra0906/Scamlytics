@@ -49,7 +49,7 @@ export default function GeoIntel() {
     >
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
         <div>
-          <SectionLabel>Module 04 — Geo Intelligence</SectionLabel>
+          <SectionLabel>Module 04 - Geo Intelligence</SectionLabel>
           <h1 className="display-serif text-4xl sm:text-5xl mt-5">Geospatial Crime Intelligence</h1>
           <p className="mt-4 max-w-lg text-text-secondary leading-relaxed">
             Real-time mapping of fraud hotzones with density-based clustering and district risk scoring.

@@ -32,8 +32,8 @@ export default function ScamChecker() {
       const res = await api.post("/scam/analyze", { text, channel });
       setResult({ ...res.data, type: "text" });
       const risk = res.data.risk_level;
-      if (risk === "HIGH") toast.error("HIGH RISK threat detected — take immediate action.", "Threat Detected");
-      else if (risk === "MEDIUM") toast.warning("MEDIUM RISK — verify the source independently.", "Caution");
+      if (risk === "HIGH") toast.error("HIGH RISK threat detected - take immediate action.", "Threat Detected");
+      else if (risk === "MEDIUM") toast.warning("MEDIUM RISK - verify the source independently.", "Caution");
       else toast.success("No significant scam indicators found.", "Low Risk");
     } catch (e) {
       const msg = e?.response?.data?.detail || e.message || "Analysis failed.";
@@ -70,9 +70,9 @@ export default function ScamChecker() {
       // NOTE: the audio endpoint is a demo stub (randomised). Keep the toast
       // honest so users don't mistake it for a real forensic verdict.
       if (res.data.is_spoofed) {
-        toast.warning("Simulated deepfake flag (demo module — not a real verdict).", "Audio Analysis (Demo)");
+        toast.warning("Simulated deepfake flag (demo module - not a real verdict).", "Audio Analysis (Demo)");
       } else {
-        toast.info("Simulated clean result (demo module — not a real verdict).", "Audio Analysis (Demo)");
+        toast.info("Simulated clean result (demo module - not a real verdict).", "Audio Analysis (Demo)");
       }
     } catch (e) {
       const msg = e?.response?.data?.detail || e.message || "Audio analysis failed.";
@@ -105,7 +105,7 @@ export default function ScamChecker() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <PageHeader eyebrow="Module 01 — Scam Detection" title="Threat & Scam Analyzer">
+      <PageHeader eyebrow="Module 01 - Scam Detection" title="Threat & Scam Analyzer">
         Multi-vector analysis for digital-arrest and impersonation scams across
         call transcripts, messages, and audio.
       </PageHeader>

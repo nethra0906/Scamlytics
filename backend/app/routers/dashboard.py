@@ -31,7 +31,7 @@ def get_stats(db: Session = Depends(get_db)):
         logger.debug("Dashboard stats served from cache")
         return cached
 
-    logger.debug("Dashboard stats cache miss — querying DB")
+    logger.debug("Dashboard stats cache miss - querying DB")
 
     total_scam_checks   = db.query(ScamReport).count()
     high_risk_scams     = db.query(ScamReport).filter(ScamReport.risk_level == "HIGH").count()
