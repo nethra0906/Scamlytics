@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from "react";
+import { createContext, useContext, useState, useCallback, useRef } from "react";
 
 const ToastContext = createContext(null);
 
@@ -84,7 +84,7 @@ function ToastItem({ toast, onDismiss }) {
         borderLeft: `3px solid ${BORDER_COLORS[toast.type]}`,
         animation: "toast-in 0.35s cubic-bezier(0.21,1.02,0.73,1) both",
       }}
-      className="flex items-start gap-3 bg-[#0c121d] border border-[#1f2937] rounded-lg px-4 py-3 shadow-2xl min-w-[280px] max-w-[380px] pointer-events-auto"
+      className="flex items-start gap-3 bg-surface-card/90 backdrop-blur-md border border-surface-border rounded-lg px-4 py-3 shadow-2xl min-w-[280px] max-w-[380px] pointer-events-auto"
     >
       <div className="mt-0.5 shrink-0">{ICONS[toast.type]}</div>
       <div className="flex-1 min-w-0">

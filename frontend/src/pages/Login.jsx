@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Shield, LogIn, Lock, User } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { useAuth } from "../RoleContext";
 import { useToast } from "../ToastContext";
+import Starfield from "../components/Starfield";
+import { SectionLabel, Diamond } from "../components/Editorial";
 
-// Demo accounts (mirrors the backend _DEMO_USERS store).
 const DEMO_ACCOUNTS = [
-  { label: "Police Intel", username: "police", password: "police123" },
-  { label: "Bank Analyst", username: "bank", password: "bank123" },
+  { label: "Police", username: "police", password: "police123" },
+  { label: "Bank", username: "bank", password: "bank123" },
   { label: "Citizen", username: "citizen", password: "citizen123" },
 ];
 
@@ -23,7 +24,7 @@ export default function Login() {
     setLoading(true);
     try {
       const role = await login(username.trim(), password);
-      toast.success(`Signed in — clearance: ${role.toUpperCase()}`, "Access Granted");
+      toast.success(`Signed in — clearance ${role.toUpperCase()}`, "Access Granted");
     } catch (err) {
       const msg =
         err?.response?.status === 401
@@ -34,104 +35,73 @@ export default function Login() {
     setLoading(false);
   };
 
-  const quickFill = (acc) => {
-    setUsername(acc.username);
-    setPassword(acc.password);
-  };
+  const quickFill = (acc) => { setUsername(acc.username); setPassword(acc.password); };
+
+  const inputCls =
+    "w-full bg-transparent border-0 border-b border-surface-border focus:border-accent text-text-primary py-2.5 focus:outline-none transition-colors placeholder:text-text-muted";
 
   return (
-    <div className="min-h-screen bg-surface-base flex items-center justify-center p-4">
-      <div className="w-full max-w-md animate-[fadeInUp_0.4s_ease-out]">
-        <style>{`@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }`}</style>
-        {/* Brand */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-lg bg-accent/20 border border-accent flex items-center justify-center text-accent mb-4">
-            <Shield size={28} />
-          </div>
-          <h1 className="font-sans font-bold text-2xl tracking-tight">
-            Scam<span className="text-accent">lytics</span>
-          </h1>
-          <p className="text-text-secondary text-sm mt-1">Digital Public Safety Intelligence</p>
+    <div className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
+      <Starfield />
+
+      {/* fixed corner motifs, echoing the reference */}
+      <div className="fixed top-6 left-6 text-text-muted"><Diamond size={12} /></div>
+      <div className="fixed top-6 right-6 text-text-muted"><Diamond size={12} /></div>
+
+      <div className="w-full max-w-sm animate-[fadeInUp_0.6s_ease-out]">
+        <style>{`@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+
+        <div className="text-center mb-10">
+          <SectionLabel className="justify-center">Secure Access</SectionLabel>
+          <h1 className="display-serif text-6xl mt-6 mb-3">Scamlytics</h1>
+          <p className="text-sm text-text-secondary">Digital Public Safety Intelligence</p>
         </div>
 
-        {/* Card */}
-        <form
-          onSubmit={submit}
-          className="bg-surface-card border border-surface-border rounded-xl p-6 shadow-lg space-y-4"
-        >
-          <div className="text-xs font-mono text-text-muted uppercase tracking-wider mb-2">
-            Secure Authentication
-          </div>
-
+        <form onSubmit={submit} className="space-y-6">
           <div>
-            <label className="block text-xs font-mono text-text-muted mb-2">USERNAME</label>
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input
-                type="text"
-                value={username}
-                autoComplete="username"
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. police"
-                className="w-full bg-surface-elevated border border-surface-border text-text-primary rounded-md pl-9 pr-3 py-2.5 focus:outline-none focus:border-accent transition-colors font-mono text-sm"
-              />
-            </div>
+            <label className="eyebrow block mb-1">Username</label>
+            <input
+              type="text" value={username} autoComplete="username"
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="police" className={inputCls}
+            />
           </div>
-
           <div>
-            <label className="block text-xs font-mono text-text-muted mb-2">PASSWORD</label>
-            <div className="relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input
-                type="password"
-                value={password}
-                autoComplete="current-password"
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-surface-elevated border border-surface-border text-text-primary rounded-md pl-9 pr-3 py-2.5 focus:outline-none focus:border-accent transition-colors font-mono text-sm"
-              />
-            </div>
+            <label className="eyebrow block mb-1">Password</label>
+            <input
+              type="password" value={password} autoComplete="current-password"
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••" className={inputCls}
+            />
           </div>
 
           <button
             type="submit"
             disabled={loading || !username.trim() || !password}
-            className="w-full bg-accent text-surface-base hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+            className="group w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white py-3 rounded-md text-xs font-mono uppercase tracking-[0.25em] transition-colors disabled:opacity-40 mt-2"
           >
-            {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-surface-base border-t-transparent rounded-full animate-spin" />
-                AUTHENTICATING...
-              </>
-            ) : (
-              <>
-                <LogIn size={16} /> SIGN IN
-              </>
-            )}
+            {loading ? "Authenticating…" : (<><LogIn size={14} /> Sign In</>)}
           </button>
-
-          {/* Demo credential shortcuts */}
-          <div className="pt-4 border-t border-surface-border">
-            <p className="text-[10px] font-mono text-text-muted uppercase tracking-wider mb-2">
-              Demo Accounts — click to fill
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {DEMO_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.username}
-                  type="button"
-                  onClick={() => quickFill(acc)}
-                  className="text-[11px] font-mono px-2 py-2 rounded border border-surface-border bg-surface-elevated text-text-secondary hover:text-accent hover:border-accent/50 transition-colors"
-                >
-                  {acc.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </form>
 
-        <p className="text-center text-[10px] text-text-muted font-mono mt-4 uppercase tracking-wider">
-          Authorised access only · Activity is logged
+        <div className="mt-10 pt-6 border-t border-surface-border">
+          <p className="eyebrow mb-3">Demo Accounts</p>
+          <div className="flex items-center justify-between">
+            {DEMO_ACCOUNTS.map((acc) => (
+              <button
+                key={acc.username}
+                type="button"
+                onClick={() => quickFill(acc)}
+                className="text-xs font-mono uppercase tracking-[0.15em] text-text-secondary hover:text-accent transition-colors"
+              >
+                {acc.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-center text-[10px] text-text-muted font-mono uppercase tracking-[0.2em] mt-10">
+          Authorised access only · Activity logged
         </p>
       </div>
     </div>

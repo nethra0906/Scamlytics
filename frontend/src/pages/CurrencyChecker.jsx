@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
-import { ScanSearch, Upload, CheckCircle, AlertOctagon, Download, Cpu, Layers } from "lucide-react";
+import { Upload, CheckCircle, AlertOctagon, Download, Cpu, Layers } from "lucide-react";
 import { useRole } from "../RoleContext";
 import { useToast } from "../ToastContext";
+import { PageHeader } from "../components/Editorial";
 
 // ── Constants (mirrored from backend for client-side pre-validation) ──────────
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -89,13 +90,11 @@ export default function CurrencyChecker() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <header className="flex flex-col items-center text-center">
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
-          <ScanSearch className="text-accent" /> Counterfeit Intelligence
-        </h1>
-        <p className="text-text-secondary mt-1">Heuristic and CNN ensemble analysis of physical currency.</p>
-      </header>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <PageHeader eyebrow="Module 02 — Currency Intelligence" title="Counterfeit Intelligence">
+        Explainable computer-vision analysis of physical currency notes, with
+        suspicious regions highlighted on the scan.
+      </PageHeader>
 
       <div className={`grid gap-6 items-start ${result && !result.error ? "md:grid-cols-2" : "max-w-xl mx-auto w-full"}`}>
         {/* Upload Column */}
@@ -104,7 +103,7 @@ export default function CurrencyChecker() {
             onClick={() => !loading && fileInputRef.current?.click()}
             className={`w-full relative overflow-hidden border-2 ${
               preview ? "border-surface-border" : "border-dashed border-surface-border hover:border-accent/50"
-            } rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors bg-[#0a0f16] ${
+            } rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors bg-surface-base/60 ${
               !preview ? "h-64" : "min-h-[16rem]"
             }`}
           >
@@ -141,7 +140,7 @@ export default function CurrencyChecker() {
           <button
             onClick={analyze}
             disabled={loading || !file}
-            className="w-full bg-accent text-surface-base hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+            className="w-full bg-accent text-white hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
           >
             {loading ? (
               <><div className="w-4 h-4 border-2 border-surface-base border-t-transparent rounded-full animate-spin" /> SCANNING...</>

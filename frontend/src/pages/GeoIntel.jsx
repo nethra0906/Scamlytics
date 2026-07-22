@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import api from "../api";
-import { Map, RefreshCw, AlertTriangle, Crosshair, MapPin } from "lucide-react";
+import { RefreshCw, AlertTriangle, Crosshair, MapPin } from "lucide-react";
 import { useToast } from "../ToastContext";
+import { SectionLabel } from "../components/Editorial";
 
 export default function GeoIntel() {
   const toast = useToast();
@@ -34,10 +35,10 @@ export default function GeoIntel() {
 
   const center = points.length ? [points[0].lat, points[0].lng] : [22.9734, 78.6569];
 
-  const riskColor = { 
-    HIGH: "var(--color-alert-high)", 
-    MEDIUM: "var(--color-accent)", 
-    LOW: "var(--color-alert-low)" 
+  const riskColor = {
+    HIGH: "var(--color-alert-high)",
+    MEDIUM: "var(--color-alert-med)",
+    LOW: "var(--color-alert-low)"
   };
 
   return (
@@ -46,17 +47,18 @@ export default function GeoIntel() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Map className="text-accent" /> Geospatial Crime Intelligence
-          </h1>
-          <p className="text-text-secondary mt-1">Real-time mapping of fraud hotzones and incident clustering.</p>
+          <SectionLabel>Module 04 — Geo Intelligence</SectionLabel>
+          <h1 className="display-serif text-4xl sm:text-5xl mt-5">Geospatial Crime Intelligence</h1>
+          <p className="mt-4 max-w-lg text-text-secondary leading-relaxed">
+            Real-time mapping of fraud hotzones with density-based clustering and district risk scoring.
+          </p>
         </div>
         <button
           onClick={loadAll}
           disabled={loading}
-          className="bg-surface-card border border-surface-border text-text-primary hover:text-accent px-6 py-2.5 rounded-md font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
+          className="shrink-0 border border-surface-border text-text-secondary hover:text-accent hover:border-accent/40 px-6 py-2.5 rounded-md font-mono text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-colors disabled:opacity-50"
         >
           <RefreshCw size={16} className={loading ? "animate-spin text-accent" : ""} /> 
           {loading ? "SYNCING..." : "SYNC INTEL"}
@@ -65,12 +67,12 @@ export default function GeoIntel() {
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Map Column */}
-        <div className="lg:col-span-2 h-[600px] rounded-xl overflow-hidden border border-surface-border relative shadow-lg bg-surface-card">
-          <div className="absolute top-4 left-4 z-[400] bg-surface-base/80 backdrop-blur border border-surface-border px-3 py-2 rounded flex items-center gap-2 font-mono text-xs text-text-primary">
-            <Crosshair size={14} className="text-accent" /> LIVE SATELLITE TRACKING
+        <div className="lg:col-span-2 h-[600px] rounded-lg overflow-hidden border border-surface-border relative bg-surface-card">
+          <div className="absolute top-4 left-4 z-[400] bg-surface-base/80 backdrop-blur border border-surface-border px-3 py-2 rounded flex items-center gap-2">
+            <Crosshair size={13} className="text-accent" /> <span className="eyebrow">Live Incident Map</span>
           </div>
           
-          <MapContainer center={center} zoom={5} style={{ height: "100%", width: "100%", background: "#0a0f16" }} zoomControl={false}>
+          <MapContainer center={center} zoom={5} style={{ height: "100%", width: "100%", background: "#0a0912" }} zoomControl={false}>
             {/* Dark mode tiles */}
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -123,17 +125,17 @@ export default function GeoIntel() {
         </div>
 
         {/* Intelligence Sidebar Column */}
-        <div className="flex flex-col h-[600px]">
-          <div className="bg-surface-base border-b border-surface-border p-4 flex items-center justify-between">
-            <h2 className="font-mono font-bold text-sm flex items-center gap-2">
-              <MapPin size={16} className="text-accent" /> DISTRICT RISK MATRIX
-            </h2>
-            <span className="text-[10px] font-mono text-text-muted bg-surface-elevated px-2 py-1 rounded">
+        <div className="flex flex-col h-[600px] border border-surface-border rounded-lg overflow-hidden">
+          <div className="border-b border-surface-border p-4 flex items-center justify-between">
+            <span className="eyebrow flex items-center gap-2.5">
+              <MapPin size={14} className="text-accent" /> District Risk Matrix
+            </span>
+            <span className="text-[10px] font-mono text-text-muted">
               {districtRisk.length} ZONES
             </span>
           </div>
-          
-          <div className="flex-1 overflow-y-auto bg-surface-card border-x border-b border-surface-border rounded-b-xl p-4 space-y-3 custom-scrollbar">
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
             <AnimatePresence>
               {districtRisk.length === 0 && !loading && (
                 <div className="text-center text-text-muted font-mono text-sm py-10">
@@ -169,9 +171,10 @@ export default function GeoIntel() {
                       >
                         {d.risk_level} RISK
                       </span>
-                      <div className="text-xs font-mono text-text-muted mt-2">
+                      <div className="flex items-baseline justify-end gap-1.5 mt-2">
+                        <span className="eyebrow">Score</span>
                         {/* backend already returns risk_score on a 0–100 scale */}
-                        SCORE: <span className="text-text-primary font-bold">{d.risk_score.toFixed(0)}</span>
+                        <span className="numeral text-xl text-text-primary">{d.risk_score.toFixed(0)}</span>
                       </div>
                     </div>
                   </div>

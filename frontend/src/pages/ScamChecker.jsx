@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
-import { ShieldAlert, FileText, Upload, Mic, Download, CheckCircle, AlertTriangle } from "lucide-react";
+import { FileText, Upload, Mic, Download, CheckCircle, AlertTriangle } from "lucide-react";
 import { useRole } from "../RoleContext";
 import { useToast } from "../ToastContext";
+import { PageHeader } from "../components/Editorial";
 
 export default function ScamChecker() {
   const { role } = useRole();
@@ -103,13 +104,11 @@ export default function ScamChecker() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <header className="flex flex-col items-center text-center">
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
-          <ShieldAlert className="text-accent" /> Threat &amp; Scam Analyzer
-        </h1>
-        <p className="text-text-secondary mt-1">Multi-vector analysis for digital arrest and impersonation scams.</p>
-      </header>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <PageHeader eyebrow="Module 01 — Scam Detection" title="Threat & Scam Analyzer">
+        Multi-vector analysis for digital-arrest and impersonation scams across
+        call transcripts, messages, and audio.
+      </PageHeader>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-surface-card p-1 rounded-lg border border-surface-border w-max mx-auto">
@@ -161,7 +160,7 @@ export default function ScamChecker() {
               <button
                 onClick={analyzeText}
                 disabled={loading || !text.trim()}
-                className="w-full bg-accent text-surface-base hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                className="w-full bg-accent text-white hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <><div className="w-4 h-4 border-2 border-surface-base border-t-transparent rounded-full animate-spin" /> ANALYZING...</>
@@ -189,7 +188,7 @@ export default function ScamChecker() {
               <button
                 onClick={analyzeAudio}
                 disabled={loading || !audioFile}
-                className="w-full bg-accent text-surface-base hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                className="w-full bg-accent text-white hover:bg-accent-hover py-3 rounded-md font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <><div className="w-4 h-4 border-2 border-surface-base border-t-transparent rounded-full animate-spin" /> PROCESSING AUDIO...</>
@@ -226,7 +225,7 @@ export default function ScamChecker() {
                     fill="none"
                     stroke={
                       result.risk_level === "HIGH" ? "var(--color-alert-high)"
-                      : result.risk_level === "MEDIUM" ? "var(--color-accent)"
+                      : result.risk_level === "MEDIUM" ? "var(--color-alert-med)"
                       : "var(--color-alert-low)"
                     }
                     strokeWidth="8"
@@ -240,7 +239,7 @@ export default function ScamChecker() {
                   <span
                     className={`text-xs font-mono font-bold mt-1 px-2 py-0.5 rounded ${
                       result.risk_level === "HIGH"   ? "bg-alert-high-dim text-alert-high"
-                    : result.risk_level === "MEDIUM" ? "bg-accent-dim text-accent"
+                    : result.risk_level === "MEDIUM" ? "bg-alert-med-dim text-alert-med"
                     : "bg-alert-low-dim text-alert-low"
                     }`}
                   >
