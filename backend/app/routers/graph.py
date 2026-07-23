@@ -14,8 +14,8 @@ router = APIRouter(prefix="/graph", tags=["graph"])
 # Fraud-network intelligence is restricted to law enforcement.
 require_graph_access = require_role("police")
 
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static")
-os.makedirs(STATIC_DIR, exist_ok=True)
+# /tmp is the only writable directory on serverless platforms (Vercel, AWS Lambda)
+STATIC_DIR = os.path.join("/tmp", "scamlytics")
 
 class TxInput(BaseModel):
     phone_number: str
@@ -63,6 +63,7 @@ def analyze_graph(
     repo = get_graph_repo()
     G, clusters = repo.build_fraud_graph(tx_list)
     html_path = os.path.join(STATIC_DIR, "fraud_graph.html")
+    os.makedirs(STATIC_DIR, exist_ok=True)
     repo.graph_to_html(html_path)
 
     return {

@@ -25,8 +25,8 @@ from ..cache import invalidate
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/scam", tags=["scam"])
 
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "reports")
-os.makedirs(STATIC_DIR, exist_ok=True)
+# /tmp is the only writable directory on serverless platforms (Vercel, AWS Lambda)
+STATIC_DIR = os.path.join("/tmp", "scamlytics", "reports")
 
 # Thread pool for CPU-bound ML inference
 _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="scam-ml")
@@ -88,6 +88,8 @@ def generate_scam_report(report_id: int, db: Session = Depends(get_db)):
     if not record:
         raise HTTPException(status_code=404, detail="Report not found")
 
+    # Ensure the tmp reports directory exists (deferred from module level for serverless compat)
+    os.makedirs(STATIC_DIR, exist_ok=True)
     # Clean up old PDFs before generating a new one
     cleanup_old_reports(STATIC_DIR)
 

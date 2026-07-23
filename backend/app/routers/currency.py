@@ -27,8 +27,8 @@ router = APIRouter(prefix="/currency", tags=["currency"])
 # Counterfeit-currency intelligence is restricted to law-enforcement and bank analysts.
 require_currency_access = require_role("police", "bank")
 
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "reports")
-os.makedirs(STATIC_DIR, exist_ok=True)
+# /tmp is the only writable directory on serverless platforms (Vercel, AWS Lambda)
+STATIC_DIR = os.path.join("/tmp", "scamlytics", "reports")
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -114,6 +114,8 @@ def generate_currency_report(
     if not record:
         raise HTTPException(status_code=404, detail="Report not found")
 
+    # Ensure the tmp reports directory exists (deferred from module level for serverless compat)
+    os.makedirs(STATIC_DIR, exist_ok=True)
     cleanup_old_reports(STATIC_DIR)
 
     evidence_data = {
