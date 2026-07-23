@@ -10,7 +10,6 @@ main.py — FastAPI application entry point.
 import logging
 import os
 from contextlib import asynccontextmanager
-from logging.handlers import RotatingFileHandler
 
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,15 +29,7 @@ logging.basicConfig(
     format=LOG_FORMAT,
     handlers=[
         logging.StreamHandler(),
-        # Rotating file handler so the log can't grow unbounded on disk
-        # (5 MB per file, keep 3 backups).
-        RotatingFileHandler(
-            "scamlytics.log",
-            maxBytes=5 * 1024 * 1024,
-            backupCount=3,
-            encoding="utf-8",
-        ),
-    ],
+    ],  
 )
 logger = logging.getLogger("scamlytics")
 
