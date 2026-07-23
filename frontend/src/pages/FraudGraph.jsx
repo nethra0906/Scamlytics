@@ -163,7 +163,7 @@ export default function FraudGraph() {
           <div className="mt-6 border border-surface-border rounded-lg p-1 overflow-hidden h-[600px] relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent-dim/20 via-transparent to-transparent pointer-events-none"></div>
             <iframe
-              src={`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/graph/view`}
+              src={`${import.meta.env.VITE_API_URL || 'https://scamlytics-backend.vercel.app'}/graph/view`}
               title="fraud-graph"
               className="w-full h-full rounded-md"
             />

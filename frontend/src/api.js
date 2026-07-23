@@ -5,8 +5,12 @@ export const TOKEN_KEY = "scamlytics_token";
 export const ROLE_KEY = "scamlytics_role";
 export const USER_KEY = "scamlytics_user";
 
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  "https://scamlytics-backend.vercel.app"; // production fallback
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  baseURL: API_BASE,
 });
 
 // ── Request: attach the JWT bearer token when present ─────────────────────────
