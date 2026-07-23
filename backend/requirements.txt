@@ -1,53 +1,44 @@
 # ── Web framework ─────────────────────────────────────────────────────────────
-fastapi==0.115.6
-uvicorn==0.32.1
-starlette==0.41.3
-python-multipart==0.0.12
+fastapi
+uvicorn[standard]
+python-multipart
 
 # ── Database ───────────────────────────────────────────────────────────────────
-SQLAlchemy==2.0.36
-psycopg2-binary==2.9.10
+SQLAlchemy
+psycopg2-binary
 
 # ── Auth (JWT + password hashing) ─────────────────────────────────────────────
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+python-jose[cryptography]
+passlib[bcrypt]
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-python-dotenv==1.0.1
+python-dotenv
 
-# ── HTTP client (used by Groq SDK, httpx) ─────────────────────────────────────
-httpx==0.27.2
-anyio==4.6.2
+# ── HTTP client ────────────────────────────────────────────────────────────────
+httpx
 
 # ── AI / Chat ─────────────────────────────────────────────────────────────────
-groq==0.11.0
+groq
 
-# ── ML: scam classifier (joblib loads sklearn .pkl models) ───────────────────
-scikit-learn==1.5.2
-joblib==1.4.2
+# ── ML: scam classifier (.pkl model via joblib) ───────────────────────────────
+scikit-learn
+joblib
 
 # ── ML: currency detection (OpenCV image analysis) ───────────────────────────
-opencv-python-headless==4.10.0.84
-numpy==1.26.4
+opencv-python-headless
+numpy
 
 # ── ML: fraud graph ───────────────────────────────────────────────────────────
-networkx==3.4.2
-pyvis==0.3.2
+networkx
+pyvis
 
 # ── Image / PDF utilities ─────────────────────────────────────────────────────
-pillow==11.0.0
-fpdf2==2.8.1
+pillow
+fpdf2
 
 # ── Serialisation ─────────────────────────────────────────────────────────────
-pydantic==2.10.3
-pydantic_core==2.27.1
-jsonpickle==3.3.0
+pydantic
+jsonpickle
 
-# ── Optional cache backend (falls back to in-memory if unset) ─────────────────
-redis==5.2.0
-
-# ── Misc stdlib wrappers ──────────────────────────────────────────────────────
-python-dateutil==2.9.0.post0
-pytz==2024.2
-six==1.17.0
-certifi==2024.8.30
+# ── Optional cache backend (in-memory fallback if unset) ──────────────────────
+redis
